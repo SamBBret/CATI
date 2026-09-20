@@ -239,7 +239,7 @@ input, select, textarea {
 		@media screen and (max-width: 1680px) {
 
 			.container {
-				width: 75em;
+				width: clamp(0, calc(100% - 100px), 1500px);
 			}
 
 		}
@@ -2806,7 +2806,6 @@ body{
 				font-size: 12pt;
 				line-height: 1.75em;
 			}
-
 	}
 
 /* Large */
