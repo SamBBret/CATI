@@ -37,6 +37,5 @@
     ]
   },
   { "name": "palestras", "link": "palestras.html", "status": "not available" },
-  { "name": "estudos", "link": "estudos.html", "status": "not available" },
   { "name": "telemetria", "link": "telemetry.html"}
 ]
