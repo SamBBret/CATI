@@ -38,7 +38,7 @@
 			const nav = document.getElementById("nav");
 			nav.innerHTML =
 				'<a class="nav-logo" href="index.html" aria-label="CATI home">' +
-					'<img src="../logoCATI.svg" alt="CATI">' +
+					'<img src="../LogoCATI.svg" alt="CATI">' +
 				'</a>';
 
 			const ul = buildMenu(marked);
