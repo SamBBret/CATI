@@ -1914,6 +1914,13 @@ input, select, textarea {
 			font-size: 1.65em;
 		}
 
+/* Pagination */
+
+	.pagination .ellipsis {
+		display: inline-block;
+		padding: 1em 0.75em 0;
+	}
+
 /* List */
 
 	ul {

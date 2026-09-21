@@ -92,6 +92,56 @@ function formatDate(date: string) {
   }).format(new Date(date))
 }
 
+function getPaginationPages(
+  currentPage: number,
+  totalPages: number,
+): (number | 'ellipsis')[] {
+  if (totalPages <= 7) {
+    return Array.from(
+      {length: totalPages},
+      (_, index) => index + 1,
+    )
+  }
+
+  const pages = new Set<number>()
+
+  pages.add(1)
+
+  for (
+    let number = currentPage - 1;
+    number <= currentPage + 1;
+    number++
+  ) {
+    if (number >= 1 && number <= totalPages) {
+      pages.add(number)
+    }
+  }
+
+  pages.add(totalPages)
+
+  const sortedPages = [...pages].sort(
+    (a, b) => a - b,
+  )
+
+  const result: (number | 'ellipsis')[] = []
+
+  for (let index = 0; index < sortedPages.length; index++) {
+    const number = sortedPages[index]
+    const previous = sortedPages[index - 1]
+
+    if (
+      previous !== undefined &&
+      number - previous > 1
+    ) {
+      result.push('ellipsis')
+    }
+
+    result.push(number)
+  }
+
+  return result
+}
+
 async function main() {
   const articles = await client.fetch(`
     *[_type == "article" && defined(publishedAt)]
@@ -222,7 +272,7 @@ async function main() {
     'utf8',
   )
 
-  const articlesPerPage = 3
+  const articlesPerPage = 6
   const totalPages = Math.ceil(
     articles.length / articlesPerPage,
   )
@@ -272,22 +322,35 @@ async function main() {
       )
     }
 
-    for (let number = 1; number <= totalPages; number++) {
-      const pageUrl = `/page/news/news-page/${number}/`
+    const paginationPages = getPaginationPages(
+    page,
+    totalPages,
+    )
 
-      paginationItems.push(
+    for (const number of paginationPages) {
+    if (number === 'ellipsis') {
+        paginationItems.push(
+        '<span class="ellipsis">…</span>',
+        )
+
+        continue
+    }
+
+    const pageUrl =`/page/news/news-page/${number}/`
+
+    paginationItems.push(
         paginationItemTemplate
-          .replaceAll('{{URL}}', pageUrl)
-          .replaceAll(
+        .replaceAll('{{URL}}', pageUrl)
+        .replaceAll(
             '{{CLASS}}',
             number === page ? 'active' : '',
-          )
-          .replaceAll(
+        )
+        .replaceAll(
             '{{LABEL}}',
             String(number),
-          ),
-      )
-    }
+        ),
+    )
+}
 
     if (page < totalPages) {
       paginationItems.push(
