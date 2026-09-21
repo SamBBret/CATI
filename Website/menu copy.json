@@ -9,6 +9,18 @@
     "directory": "/page/news/"
   },
   {
+    "name": "atividades",
+    "status": "not available",
+    "children": [
+      { "name": "planificação", "link": "/page/planificacao.html", "status": "not available"},
+      { "name": "estação meteorológica", "link": "/page/estacao-meteorologica.html", "status": "not available" },
+      { "name": "clinostato", "link": "/page/clinostato.html", "status": "not available" },
+      { "name": "QAI", "link": "/page/qai.html", "status": "not available" },
+      { "name": "foguete de água", "link": "/page/foguete-de-agua.html", "status": "not available" },
+      { "name": "rocket", "link": "/page/rocket.html", "status": "not available" }
+    ]
+  },
+  {
     "name": "projetos",
     "children": [
       { "name": "Isave", "link": "/page/isave.html", "status": "not available" },
@@ -20,7 +32,8 @@
           { "name": "limiar2", "link": "/page/limiar2.html" },
           { "name": "limiar3", "link": "/page/limiar3.html" }
         ]
-      }
+      },
+      { "name": "roda de água", "link": "/page/roda-de-agua.html", "status": "not available" }
     ]
   },
   { "name": "palestras", "link": "/page/palestras.html", "status": "not available" },
