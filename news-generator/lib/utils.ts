@@ -1,9 +1,9 @@
-import imageUrlBuilder from '@sanity/image-url'
+import {createImageUrlBuilder} from '@sanity/image-url'
 import {toHTML} from '@portabletext/to-html'
 import {client} from './sanity'
 
 const imageBuilder =
-  imageUrlBuilder(client)
+  createImageUrlBuilder(client)
 
 export function imageUrl(source: unknown) {
   return imageBuilder

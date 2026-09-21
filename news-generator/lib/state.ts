@@ -1,16 +1,20 @@
 import fs from 'node:fs/promises'
-import {stateDirectory, statePath} from './paths'
+import {
+  stateDirectory,
+  statePath,
+} from './paths'
 
 export interface ArticleState {
   slug: string
   rev: string
   publishedAt: string
+  position: number
 }
 
-export type GeneratorState = Record<
-  string,
-  ArticleState
->
+export interface GeneratorState {
+  articles: Record<string, ArticleState>
+  totalPages: number
+}
 
 export async function loadState(): Promise<GeneratorState> {
   try {
@@ -19,22 +23,48 @@ export async function loadState(): Promise<GeneratorState> {
       'utf8',
     )
 
-    return JSON.parse(contents)
+    const parsed = JSON.parse(contents)
+
+    // Migrate the old state format if necessary.
+    if (
+      !parsed.articles &&
+      typeof parsed === 'object'
+    ) {
+      return {
+        articles: parsed,
+        totalPages: 0,
+      }
+    }
+
+    return {
+      articles: parsed.articles || {},
+      totalPages: parsed.totalPages || 0,
+    }
   } catch {
-    return {}
+    return {
+      articles: {},
+      totalPages: 0,
+    }
   }
 }
 
 export async function saveState(
   state: GeneratorState,
 ) {
-  await fs.mkdir(stateDirectory, {
-    recursive: true,
-  })
+  await fs.mkdir(
+    stateDirectory,
+    {
+      recursive: true,
+    },
+  )
 
   await fs.writeFile(
     statePath,
-    JSON.stringify(state, null, 2),
+    JSON.stringify(
+      state,
+      null,
+      2,
+    ),
     'utf8',
   )
 }

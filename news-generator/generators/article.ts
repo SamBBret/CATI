@@ -17,29 +17,49 @@ import {
   loadTemplate,
 } from '../lib/templates'
 
+import {
+  ARTICLES_PER_PAGE,
+  SIDEBAR_ARTICLES_COUNT,
+} from '../lib/config'
+
+export interface ArticleGenerationResult {
+  changed: boolean
+  affectedPages: number[]
+  sidebarAffected: boolean
+}
+
 export async function generateArticle(
   slug: string,
   articles: any[],
   state: any,
   force = false,
-) {
-  const article = articles.find(
-    (item) => item.slug === slug,
-  )
+): Promise<ArticleGenerationResult> {
+  const articleIndex =
+    articles.findIndex(
+      (item) => item.slug === slug,
+    )
 
-  if (!article) {
+  if (articleIndex === -1) {
     throw new Error(
       `Article not found: ${slug}`,
     )
   }
 
-  const previous = state[article._id]
+  const article =
+    articles[articleIndex]
 
-  const articlePath = path.join(
-    newsDirectory,
-    article.slug,
-    'index.html',
-  )
+  const position =
+    articleIndex + 1
+
+  const previous =
+    state.articles[article._id]
+
+  const articlePath =
+    path.join(
+      newsDirectory,
+      article.slug,
+      'index.html',
+    )
 
   const articleExists =
     await fileExists(articlePath)
@@ -51,37 +71,98 @@ export async function generateArticle(
     previous.slug !== article.slug ||
     !articleExists
 
-  if (!changed) {
-    console.log(
-      `Article unchanged: ${article.title}`,
-    )
-  } else {
+  if (changed) {
     await writeArticle(article)
 
     console.log(
       `Generated article: ${article.title}`,
     )
-  }
-
-  state[article._id] = {
-    slug: article.slug,
-    rev: article._rev,
-    publishedAt: article.publishedAt,
+  } else {
+    console.log(
+      `Article unchanged: ${article.title}`,
+    )
   }
 
   /*
-   * The article's news card is part of a generated
-   * news page, so that page must also be regenerated.
-   *
-   * We do this separately in the main orchestration
-   * rather than duplicating news-generation logic here.
+   * Determine which news listing pages contain
+   * the old and new positions.
    */
+  const affectedPages = new Set<number>()
+
+  const newPage =
+    getPageForPosition(position)
+
+  affectedPages.add(newPage)
+
+  if (previous?.position) {
+    const oldPage =
+      getPageForPosition(
+        previous.position,
+      )
+
+    affectedPages.add(oldPage)
+
+    /*
+     * If the article moved, all pages between
+     * the old and new positions can have shifted.
+     */
+    if (oldPage !== newPage) {
+      const firstPage =
+        Math.min(
+          oldPage,
+          newPage,
+        )
+
+      const lastPage =
+        Math.max(
+          oldPage,
+          newPage,
+        )
+
+      for (
+        let page = firstPage;
+        page <= lastPage;
+        page++
+      ) {
+        affectedPages.add(page)
+      }
+    }
+  }
+
+  /*
+   * Sidebar contains the latest 5 articles.
+   */
+  const sidebarAffected =
+    force ||
+    position <= SIDEBAR_ARTICLES_COUNT ||
+    previous?.position <= SIDEBAR_ARTICLES_COUNT
+
+  state.articles[article._id] = {
+    slug: article.slug,
+    rev: article._rev,
+    publishedAt:
+      article.publishedAt,
+    position,
+  }
 
   return {
     changed,
-    articleId: article._id,
-    slug: article.slug,
+    affectedPages: [
+      ...affectedPages,
+    ].sort(
+      (a, b) => a - b,
+    ),
+    sidebarAffected,
   }
+}
+
+function getPageForPosition(
+  position: number,
+) {
+  return Math.ceil(
+    position /
+      ARTICLES_PER_PAGE,
+  )
 }
 
 async function writeArticle(
@@ -118,51 +199,61 @@ async function writeArticle(
     article.excerpt ||
     ''
 
-  const html = template
-    .replaceAll(
-      '{{META_TITLE}}',
-      escapeHtml(metaTitle),
-    )
-    .replaceAll(
-      '{{META_DESCRIPTION}}',
-      escapeHtml(metaDescription),
-    )
-    .replaceAll(
-      '{{TITLE}}',
-      escapeHtml(article.title),
-    )
-    .replaceAll(
-      '{{SUBTITLE}}',
-      escapeHtml(
-        article.subtitle || '',
-      ),
-    )
-    .replaceAll(
-      '{{AUTHOR}}',
-      escapeHtml(
-        article.author || '',
-      ),
-    )
-    .replaceAll(
-      '{{CATEGORY}}',
-      escapeHtml(
-        article.category || '',
-      ),
-    )
-    .replaceAll(
-      '{{DATE}}',
-      formatDate(
-        article.publishedAt,
-      ),
-    )
-    .replaceAll(
-      '{{MAIN_IMAGE}}',
-      mainImage,
-    )
-    .replaceAll(
-      '{{BODY}}',
-      bodyHtml,
-    )
+  const html =
+    template
+      .replaceAll(
+        '{{META_TITLE}}',
+        escapeHtml(
+          metaTitle,
+        ),
+      )
+      .replaceAll(
+        '{{META_DESCRIPTION}}',
+        escapeHtml(
+          metaDescription,
+        ),
+      )
+      .replaceAll(
+        '{{TITLE}}',
+        escapeHtml(
+          article.title,
+        ),
+      )
+      .replaceAll(
+        '{{SUBTITLE}}',
+        escapeHtml(
+          article.subtitle ||
+            '',
+        ),
+      )
+      .replaceAll(
+        '{{AUTHOR}}',
+        escapeHtml(
+          article.author ||
+            '',
+        ),
+      )
+      .replaceAll(
+        '{{CATEGORY}}',
+        escapeHtml(
+          article.category ||
+            '',
+        ),
+      )
+      .replaceAll(
+        '{{DATE}}',
+        formatDate(
+          article.publishedAt,
+        ),
+      )
+      .replaceAll(
+        '{{MAIN_IMAGE}}',
+        mainImage,
+      )
+      .replaceAll(
+        '{{BODY}}',
+        bodyHtml,
+      )
 
   const outputPath =
     path.join(
@@ -172,7 +263,9 @@ async function writeArticle(
     )
 
   await fs.mkdir(
-    path.dirname(outputPath),
+    path.dirname(
+      outputPath,
+    ),
     {
       recursive: true,
     },
@@ -189,7 +282,10 @@ async function fileExists(
   filePath: string,
 ) {
   try {
-    await fs.access(filePath)
+    await fs.access(
+      filePath,
+    )
+
     return true
   } catch {
     return false

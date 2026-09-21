@@ -14,6 +14,10 @@ import {
   formatDate,
 } from '../lib/utils'
 
+import {
+  SIDEBAR_ARTICLES_COUNT,
+} from '../lib/config'
+
 export async function generateSidebar(
   articles: any[],
 ) {
@@ -29,7 +33,7 @@ export async function generateSidebar(
 
   const sidebarArticles =
     articles
-      .slice(0, 5)
+      .slice(0, SIDEBAR_ARTICLES_COUNT)
       .map((article) => {
         return itemTemplate
           .replaceAll(

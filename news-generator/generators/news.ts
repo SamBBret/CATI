@@ -18,8 +18,13 @@ import {
   newsPageUrl,
 } from '../lib/utils'
 
+import {
+  ARTICLES_PER_PAGE,
+} from '../lib/config'
+
 export async function generateNewsPages(
   articles: any[],
+  requestedPages?: number[],
 ) {
   const newsTemplate =
     await loadTemplate(
@@ -41,30 +46,35 @@ export async function generateNewsPages(
       'news-pagination-item.html',
     )
 
-  const articlesPerPage = 6
-
   const totalPages = Math.max(
     1,
     Math.ceil(
       articles.length /
-        articlesPerPage,
+        ARTICLES_PER_PAGE,
     ),
   )
 
-  for (
-    let page = 1;
-    page <= totalPages;
-    page++
-  ) {
+    const pages = requestedPages
+    ? requestedPages.filter(
+        (page) =>
+            page >= 1 &&
+            page <= totalPages,
+        )
+    : Array.from(
+        {length: totalPages},
+        (_, index) => index + 1,
+        )
+
+for (const page of pages) {
     const start =
       (page - 1) *
-      articlesPerPage
+      ARTICLES_PER_PAGE
 
     const pageArticles =
       articles.slice(
         start,
         start +
-          articlesPerPage,
+          ARTICLES_PER_PAGE,
       )
 
     const cards =
