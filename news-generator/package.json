@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "generate": "tsx --env-file=.env generate-news.ts"
+    "generate": "tsx --env-file=.env generate-news.ts all",
+    "generate:article": "tsx --env-file=.env generate-news.ts article",
+    "generate:articles": "tsx --env-file=.env generate-news.ts articles",
+    "generate:news": "tsx --env-file=.env generate-news.ts news",
+    "generate:sidebar": "tsx --env-file=.env generate-news.ts sidebar"
   },
   "keywords": [],
   "author": "",

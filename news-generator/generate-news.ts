@@ -1,470 +1,121 @@
-import {createClient} from '@sanity/client'
-import imageUrlBuilder from '@sanity/image-url'
-import {toHTML} from '@portabletext/to-html'
-import fs from 'node:fs/promises'
-import path from 'node:path'
-
-const projectId = process.env.SANITY_PROJECT_ID
-const dataset = process.env.SANITY_DATASET
-
-if (!projectId || !dataset) {
-  throw new Error('Missing SANITY_PROJECT_ID or SANITY_DATASET')
-}
-
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2026-09-20',
-  useCdn: true,
-})
-
-const imageBuilder = imageUrlBuilder(client)
-
-const websiteDirectory = path.resolve(process.cwd(), '..', 'Website')
-const pageDirectory = path.join(websiteDirectory, 'page')
-const newsDirectory = path.join(pageDirectory, 'news/news-article')
-const newsDirectoryUrl = '/Website/page/news/news-article/'
-
-function imageUrl(source: unknown) {
-  return imageBuilder
-    .image(source)
-    .width(1400)
-    .auto('format')
-    .url()
-}
-
-const portableTextComponents = {
-  types: {
-    image: ({value}: {value: unknown}) => {
-        const url = imageUrl(value)
-
-        if (!url) {
-            return ''
-        }
-
-        return `
-            <figure class="image featured">
-                <img
-                    src="${url}"
-                    alt=""
-                    loading="lazy"
-                />
-            </figure>
-            `
-    },
-  },
-
-  marks: {
-    link: ({
-      children,
-      value,
-    }: {
-      children: string
-      value?: {
-        href?: string
-        blank?: boolean
-      }
-    }) => {
-      const href = value?.href || '#'
-      const target = value?.blank
-        ? ' target="_blank" rel="noopener noreferrer"'
-        : ''
-
-      return `<a href="${escapeHtml(href)}"${target}>${children}</a>`
-    },
-  },
-}
-
-function escapeHtml(value: string = '') {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-}
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat('pt-PT', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(date))
-}
-
-function getPaginationPages(
-  currentPage: number,
-  totalPages: number,
-): (number | 'ellipsis')[] {
-  if (totalPages <= 7) {
-    return Array.from(
-      {length: totalPages},
-      (_, index) => index + 1,
-    )
-  }
-
-  const pages = new Set<number>()
-
-  pages.add(1)
-
-  for (
-    let number = currentPage - 1;
-    number <= currentPage + 1;
-    number++
-  ) {
-    if (number >= 1 && number <= totalPages) {
-      pages.add(number)
-    }
-  }
-
-  pages.add(totalPages)
-
-  const sortedPages = [...pages].sort(
-    (a, b) => a - b,
-  )
-
-  const result: (number | 'ellipsis')[] = []
-
-  for (let index = 0; index < sortedPages.length; index++) {
-    const number = sortedPages[index]
-    const previous = sortedPages[index - 1]
-
-    if (
-      previous !== undefined &&
-      number - previous > 1
-    ) {
-      result.push('ellipsis')
-    }
-
-    result.push(number)
-  }
-
-  return result
-}
+import {getPublishedArticles} from './lib/sanity'
+import {loadState, saveState} from './lib/state'
+import {generateArticle} from './generators/article'
+import {generateNewsPages} from './generators/news'
+import {generateSidebar} from './generators/sidebar'
 
 async function main() {
-  const articles = await client.fetch(`
-    *[_type == "article" && defined(publishedAt)]
-      | order(publishedAt desc) {
-        _id,
-        title,
-        "slug": slug.current,
-        subtitle,
-        excerpt,
-        body,
-        mainImage,
-        publishedAt,
-        "author": author->name,
-        "category": category->name,
-        tags,
-        seo
-      }
-  `)
+  const command = process.argv[2] || 'all'
+  const args = process.argv.slice(3)
 
-  if (!articles.length) {
-    console.log('No published articles found.')
-    return
-  }
-
-  const templatePath = path.join(
-    process.cwd(),
-    'templates',
-    'article.html',
+  const force = args.includes('force')
+  const positionalArgs = args.filter(
+    (arg) => !arg.startsWith('--'),
   )
 
-  const template = await fs.readFile(templatePath, 'utf8')
+  const articles = await getPublishedArticles()
+  const state = await loadState()
 
-  for (const article of articles) {
-    if (!article.slug) {
-      console.warn(`Skipping "${article.title}" because it has no slug.`)
-      continue
+  switch (command) {
+    case 'article': {
+      const slug = positionalArgs[0]
+
+      if (!slug) {
+        throw new Error(
+          'Usage: npm run generate:article -- <slug> [--force]',
+        )
+      }
+
+      const result = await generateArticle(
+        slug,
+        articles,
+        state,
+        force,
+      )
+
+      if (result.changed || force) {
+        await generateNewsPages(articles)
+        await generateSidebar(articles)
+      }
+
+      break
     }
 
-    const articlePath = path.join(
-      newsDirectory,
-      article.slug,
-      'index.html',
-    )
+    case 'articles': {
+        const result = await generateArticles(
+            articles,
+            state,
+            force,
+        )
 
-    await fs.mkdir(path.dirname(articlePath), {
-      recursive: true,
-    })
-
-    const bodyHtml = article.body
-    ? toHTML(article.body, {
-        components: portableTextComponents,
-        })
-    : ''
-
-    const mainImage = article.mainImage
-      ? `<a class="image featured" href="#">
-\t\t\t\t\t\t\t\t\t<img src="${imageUrl(article.mainImage)}" alt="${escapeHtml(article.title)}" />
-\t\t\t\t\t\t\t\t</a>`
-      : ''
-
-    const metaTitle =
-      article.seo?.metaTitle ||
-      article.title
-
-    const metaDescription =
-      article.seo?.metaDescription ||
-      article.excerpt ||
-      ''
-
-    const html = template
-      .replaceAll('{{META_TITLE}}', escapeHtml(metaTitle))
-      .replaceAll('{{META_DESCRIPTION}}', escapeHtml(metaDescription))
-      .replaceAll('{{TITLE}}', escapeHtml(article.title))
-      .replaceAll('{{SUBTITLE}}', escapeHtml(article.subtitle || ''))
-      .replaceAll('{{AUTHOR}}', escapeHtml(article.author || ''))
-      .replaceAll('{{CATEGORY}}', escapeHtml(article.category || ''))
-      .replaceAll('{{DATE}}', formatDate(article.publishedAt))
-      .replaceAll('{{MAIN_IMAGE}}', mainImage)
-      .replaceAll('{{BODY}}', bodyHtml)
-
-    await fs.writeFile(articlePath, html, 'utf8')
-
-    console.log(`Generated: ${articlePath}`)
-  }
-
-  // Generate paginated news listing
-  const newsTemplatePath = path.join(
-    process.cwd(),
-    'templates',
-    'news.html',
-  )
-
-  const cardTemplatePath = path.join(
-    process.cwd(),
-    'templates',
-    'news-card.html',
-  )
-
-  const paginationTemplatePath = path.join(
-    process.cwd(),
-    'templates',
-    'news-pagination.html',
-  )
-
-  const paginationItemTemplatePath = path.join(
-    process.cwd(),
-    'templates',
-    'news-pagination-item.html',
-  )
-
-  const newsTemplate = await fs.readFile(
-    newsTemplatePath,
-    'utf8',
-  )
-
-  const cardTemplate = await fs.readFile(
-    cardTemplatePath,
-    'utf8',
-  )
-
-  const paginationTemplate = await fs.readFile(
-    paginationTemplatePath,
-    'utf8',
-  )
-
-  const paginationItemTemplate = await fs.readFile(
-    paginationItemTemplatePath,
-    'utf8',
-  )
-
-  const articlesPerPage = 6
-  const totalPages = Math.ceil(
-    articles.length / articlesPerPage,
-  )
-
-  for (let page = 1; page <= totalPages; page++) {
-    const start = (page - 1) * articlesPerPage
-    const pageArticles = articles.slice(
-      start,
-      start + articlesPerPage,
-    )
-
-    const cards = pageArticles
-      .map((article) => {
-        if (!article.slug) {
-          return ''
+        if (force) {
+            await generateNewsPages(articles)
+            await generateSidebar(articles)
+        } else if (result.changedArticles.length > 0) {
+            await generateNewsPages(articles)
+            await generateSidebar(articles)
+        } else {
+            console.log(
+            'No article changes detected. News pages and sidebar are up to date.',
+            )
         }
 
-        const url = `/page/news/news-article/${article.slug}/`
-
-        const image = article.mainImage
-          ? `<a href="${url}" class="image featured">
-				<img src="${imageUrl(article.mainImage)}" alt="${escapeHtml(article.title)}" />
-			</a>`
-          : ''
-
-        return cardTemplate
-            .replaceAll('{{URL}}', url)
-            .replaceAll('{{TITLE}}', escapeHtml(article.title),)
-            .replaceAll('{{SUBTITLE}}', escapeHtml(article.subtitle || ''),)
-            .replaceAll('{{EXCERPT}}', escapeHtml(article.excerpt || ''),)
-            .replaceAll('{{AUTHOR}}', escapeHtml(article.author || ''),)
-            .replaceAll('{{DATE}}', formatDate(article.publishedAt),)
-          .replaceAll('{{IMAGE}}', image)
-      })
-      .join('\n')
-
-    const paginationItems: string[] = []
-
-    if (page > 1) {
-      const previousUrl = `/page/news/news-page/${page - 1}/`
-
-      paginationItems.push(
-        paginationItemTemplate
-          .replaceAll('{{URL}}', previousUrl)
-          .replaceAll('{{CLASS}}', 'previous')
-          .replaceAll('{{LABEL}}', 'Previous'),
-      )
+        break
     }
 
-    const paginationPages = getPaginationPages(
-    page,
-    totalPages,
-    )
-
-    for (const number of paginationPages) {
-    if (number === 'ellipsis') {
-        paginationItems.push(
-        '<span class="ellipsis">…</span>',
-        )
-
-        continue
+    case 'news': {
+      await generateNewsPages(articles)
+      break
     }
 
-    const pageUrl =`/page/news/news-page/${number}/`
-
-    paginationItems.push(
-        paginationItemTemplate
-        .replaceAll('{{URL}}', pageUrl)
-        .replaceAll(
-            '{{CLASS}}',
-            number === page ? 'active' : '',
-        )
-        .replaceAll(
-            '{{LABEL}}',
-            String(number),
-        ),
-    )
-}
-
-    if (page < totalPages) {
-      paginationItems.push(
-        paginationItemTemplate
-          .replaceAll(
-            '{{URL}}',
-            `/page/news/news-page/${page + 1}/`,
-          )
-          .replaceAll('{{CLASS}}', 'next')
-          .replaceAll('{{LABEL}}', 'Next'),
-      )
+    case 'sidebar': {
+      await generateSidebar(articles)
+      break
     }
 
-    const pagination = paginationTemplate
-      .replaceAll(
-        '{{PAGINATION}}',
-        paginationItems.join('\n\n'),
+    case 'all': {
+      await generateArticles(
+        articles,
+        state,
+        force,
       )
 
-    const newsHtml = newsTemplate
-      .replaceAll('{{ARTICLES}}', cards)
-      .replaceAll('{{PAGINATION}}', pagination)
+      await generateNewsPages(articles)
+      await generateSidebar(articles)
 
-    const newsPath =
-        path.resolve(
-            process.cwd(),
-            '..',
-            'Website',
-            'page',
-            'news/news-page',
-            String(page),
-            'index.html',
-          )
+      break
+    }
 
-    await fs.mkdir(
-      path.dirname(newsPath),
-      {recursive: true},
-    )
-
-    await fs.writeFile(
-      newsPath,
-      newsHtml,
-      'utf8',
-    )
-
-    console.log(
-      `Generated news page ${page}/${totalPages}: ${newsPath}`,
-    )
+    default:
+      throw new Error(
+        `Unknown command: ${command}`,
+      )
   }
 
-// Generate news sidebar
-  const sidebarTemplatePath = path.join(
-    process.cwd(),
-    'templates',
-    'sidebar.html',
-  )
-
-  const sidebarItemTemplatePath = path.join(
-    process.cwd(),
-    'templates',
-    'sidebar-item.html',
-  )
-
-  const sidebarTemplate = await fs.readFile(
-    sidebarTemplatePath,
-    'utf8',
-  )
-
-  const sidebarItemTemplate = await fs.readFile(
-    sidebarItemTemplatePath,
-    'utf8',
-  )
-
-  const sidebarArticles = articles
-    .slice(0, 5)
-    .map((article) => {
-      if (!article.slug) {
-        return ''
-      }
-
-      const url = `/page/news/news-article/${article.slug}/`
-
-      return sidebarItemTemplate
-        .replaceAll('{{URL}}', url)
-        .replaceAll('{{TITLE}}', escapeHtml(article.title))
-        .replaceAll(
-          '{{DATE}}',
-          formatDate(article.publishedAt),
-        )
-    })
-    .join('\n')
-
-  const sidebarHtml = sidebarTemplate
-    .replaceAll('{{ARTICLES}}', sidebarArticles)
-
-  const sidebarPath = path.resolve(
-    process.cwd(),
-    '..',
-    'Website',
-    'page',
-    'snipets',
-    'newssidebar.html',
-  )
-
-  await fs.writeFile(
-    sidebarPath,
-    sidebarHtml,
-    'utf8',
-  )
-
-  console.log(`Generated news sidebar: ${sidebarPath}`)
+  await saveState(state)
 }
 
-main().catch((error) => {
-  console.error(error)
-  process.exit(1)
-})
+async function generateArticles(
+  articles: any[],
+  state: any,
+  force: boolean,
+) {
+  const changedArticles: any[] = []
+
+  for (const article of articles) {
+    const result = await generateArticle(
+      article.slug,
+      articles,
+      state,
+      force,
+    )
+
+    if (result.changed) {
+      changedArticles.push(article)
+    }
+  }
+
+  return {
+    changedArticles,
+  }
+}
