@@ -134,7 +134,7 @@ input, select, textarea {
 		}
 
 			h2.major span {
-				background: #fff;
+				background: #f2f5f3;
 				position: relative;
 				display: inline-block;
 				top: -0.775em;
@@ -1837,7 +1837,7 @@ input, select, textarea {
 		text-transform: uppercase;
 		text-decoration: none;
 		background: #838bff;
-		color: #fff;
+		color: #f2f5f3;
 		border: 0;
 		line-height: 1em;
 		border-radius: 8px;
@@ -1857,13 +1857,21 @@ input, select, textarea {
 			border: #303030 solid 1px; 
 			color: #303030;
 		}
+		
+			.pagination > .button.white {
+				margin: 2px
+			}
+
+		.button.active {
+			background: #d6dddd;
+		}
 
 		input[type="button"]:hover,
 		input[type="submit"]:hover,
 		input[type="reset"]:hover,
 		button:hover,
 		.button:hover {
-			background: #c1edbb;
+			background: #adb9b9;
 		}
 
 		input[type="button"]:active,
@@ -1871,7 +1879,7 @@ input, select, textarea {
 		input[type="reset"]:active,
 		button:active,
 		.button:active {
-			background: #a1cd9b;
+			background: #adb9b9;
 		}
 
 		input[type="button"].alt,
@@ -2077,7 +2085,7 @@ input, select, textarea {
 					height: 2.25em;
 					line-height: 2.175em;
 					font-size: 5em;
-					color: #fff;
+					color: #f2f5f3;
 				}
 
 			ul.special li:hover {
@@ -2237,7 +2245,7 @@ input, select, textarea {
 
 			table.default thead {
 				background: #E7EAE8;
-				color: #fff;
+				color: #f2f5f3;
 			}
 
 /* Box */
@@ -2331,7 +2339,7 @@ input, select, textarea {
 /* Telemtry cards */
 
     .metric-card {
-      background: #fff;
+      background: #f2f5f3;
       border-radius: 0.75rem;
       box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
       padding: 1rem;
@@ -2410,7 +2418,7 @@ input, select, textarea {
 		font-weight: 700;
 		text-transform: uppercase;
 		padding: 2em 0;
-		background: #fff;
+		background: #f2f5f3;
 		margin: 0 auto;
 	}
 
@@ -2422,7 +2430,7 @@ input, select, textarea {
 		}
 
 			#header .logo div {
-				background: #fff;
+				background: #f2f5f3;
 				position: relative;
 				display: inline-block;
 				padding: 0 1.5em 0 1.5em;
@@ -2521,17 +2529,17 @@ input, select, textarea {
 
 			#nav li:hover a, #nav li:hover span {
 				background: #c1c5ca;
-				color: #fff;
+				color: #f2f5f3;
 			}
 
 			#nav li.active a, #nav li.active span {
 				background: #c1c5ca;
-				color: #fff;
+				color: #f2f5f3;
 			}
 
 			#nav li.current a, #nav li.current span {
 				background: #0064FF;
-				color: #fff;
+				color: #f2f5f3;
 			}
 
 			#nav li.not-available > a {
@@ -2542,7 +2550,7 @@ input, select, textarea {
 	.dropotron {
 		list-style: none;
 		background: #6b7777;
-		color: #fff;
+		color: #f2f5f3;
 		border-radius: 6px;
 		line-height: 2.75em;
 		text-align: center;
@@ -2568,17 +2576,17 @@ input, select, textarea {
 			}
 
 			.dropotron li:hover > a, .dropotron li:hover > span {
-				color: #fff;
+				color: #f2f5f3;
 				background: #7b8c8c;
 			}
 
 			.dropotron li.active > a, .dropotron li.active > span {
-				color: #fff;
+				color: #f2f5f3;
 				background: #7b8c8c;
 			}
 
 			.dropotron li.current > a, .dropotron li.current > span {
-				color: #fff;
+				color: #f2f5f3;
 				background: #7b8c8c;
 				font-size: 1.05em;
 			}
@@ -2684,7 +2692,7 @@ body{
 		}
 
 			#banner .content h2 {
-				color: #fff;
+				color: #f2f5f3;
 				font-size: 2.75em;
 				margin: 0 0 0.5em 0;
 			}
@@ -2717,7 +2725,7 @@ body{
 				}
 
 				#banner .content .button:active {
-					color: #fff;
+					color: #f2f5f3;
 					border-color: #616763;
 				}*/
 
@@ -2991,7 +2999,7 @@ body{
 					text-transform: uppercase;
 					font-size: 1.25em;
 					line-height: 44px;
-					color: #fff;
+					color: #f2f5f3;
 					z-index: 1000;
 					text-align: center;
 				}
@@ -3035,7 +3043,7 @@ body{
 						width: 44px;
 						height: 44px;
 						content: '\f0c9';
-						color: #fff;
+						color: #f2f5f3;
 						text-align: center;
 						line-height: 44px;
 						font-size: 20px;
@@ -3191,7 +3199,7 @@ body{
 				}
 
 				#navPanel .depth-0 {
-					color: #fff;
+					color: #f2f5f3;
 				}
 
 			body.navPanel-visible #page-wrapper {

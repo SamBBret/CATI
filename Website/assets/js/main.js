@@ -26,19 +26,18 @@
 		});
 
 	// Load Menu.
-	fetch("../menu.json")
+	fetch("/menu.json")
 		.then(r => r.json())
 		.then(menu => {
 
-			const currentPage =
-				window.location.pathname.split("/").pop() || "index.html";
+			const currentPage = normalizePath(window.location.pathname);
 			const path = findPath(menu, currentPage);
 			const marked = path ? markActive(menu, path) : menu;
 
 			const nav = document.getElementById("nav");
 			nav.innerHTML =
 				'<a class="nav-logo" href="index.html" aria-label="CATI home">' +
-					'<img src="../LogoCATI.svg" alt="CATI">' +
+					'<img src="/LogoCATI.svg" alt="CATI">' +
 				'</a>';
 
 			const ul = buildMenu(marked);
@@ -73,7 +72,7 @@
 						'<a href="#navPanel" class="toggle"></a>' +
 						'<span class="title">' + 				
 							'<a class="nav-logo" href="index.html" aria-label="CATI home">' +
-								'<img src="../LogoCATI-dark.svg" alt="CATI">' +
+								'<img src="/LogoCATI-dark.svg" alt="CATI">' +
 							'</a>' + 
 						'</span>' +
 					'</div>'
@@ -140,7 +139,7 @@
 			});
 
 			//Footer
-			fetch("../page/snipets/footer.html")
+			fetch("/page/snipets/footer.html")
 				.then(response => response.text())
 				.then(data => {
 					document.getElementById("footer").innerHTML = data;
@@ -167,11 +166,26 @@ if (slides.length > 0) {
 	}, 4000);
 }
 
-function findPath(items, target, path = []) {
+function normalizePath(value) {
+	const url = new URL(value, window.location.origin);
+	let pathname = url.pathname.replace(/\/+/g, "/");
+
+	if (pathname.endsWith("/"))
+		pathname += "index.html";
+
+	return pathname;
+}
+
+function findPath(items, target, path = ["/page/"]) {
 	for (const item of items) {
 
 		const currentPath = [...path, item];
-		if (item.link === target) {
+		const itemPath = item.link ? normalizePath(item.link) : null;
+		const directoryPath = item.directory
+			? normalizePath(item.directory).replace(/index\.html$/, "")
+			: null;
+
+		if (itemPath === target || (directoryPath && target.startsWith(directoryPath))) {
 
 			return currentPath;
 		}

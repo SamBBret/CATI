@@ -1,0 +1,24 @@
+{
+  "name": "news-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "tsx --env-file=.env generate-news.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@portabletext/to-html": "^6.0.0",
+    "@sanity/client": "^8.6.2",
+    "@sanity/image-url": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
