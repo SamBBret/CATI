@@ -1831,6 +1831,7 @@ input, select, textarea {
 	button,
 	.button {
 		-webkit-appearance: none;
+		appearance: none;
 		display: inline-block;
 		font-family: 'Open Sans Condensed', sans-serif;
 		font-weight: 700;
@@ -2171,6 +2172,7 @@ input, select, textarea {
 	form select,
 	form textarea {
 		-webkit-appearance: none;
+		appearance: none;
 		display: block;
 		width: 100%;
 		border-radius: 8px;

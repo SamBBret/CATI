@@ -173,6 +173,9 @@ function normalizePath(value) {
 	if (pathname.endsWith("/"))
 		pathname += "index.html";
 
+	if (pathname == "")
+		pathname += "index.html";
+
 	return pathname;
 }
 
