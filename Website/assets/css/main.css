@@ -1853,15 +1853,20 @@ input, select, textarea {
 		padding: 0.85em 1.85em;
 		text-align: center;
 	}
-		.button.white {
+		.button.white, .pagination > .button{
 			background-color: #f3f3f3;
 			border: #303030 solid 1px; 
 			color: #303030;
 		}
 		
-			.pagination > .button.white {
-				margin: 2px
-			}
+		.pagination > .button {
+			margin: 2px;
+			padding: 9px 19px;
+			font-size: 1em;
+			line-height: normal;
+			width: min-content;
+			height: min-content;
+		}
 
 		.button.active {
 			background: #d6dddd;
@@ -1920,6 +1925,10 @@ input, select, textarea {
 	.pagination .ellipsis {
 		display: inline-block;
 		padding: 1em 0.75em 0;
+	}
+
+	.pagination {
+		flex-wrap: wrap;
 	}
 
 /* List */

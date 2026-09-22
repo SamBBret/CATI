@@ -13,14 +13,18 @@ export const pageDirectory = path.join(
 
 export const newsDirectory = path.join(
   pageDirectory,
-  'news',
+  'news'
+)
+
+
+export const articleDirectory = path.join(
+  newsDirectory,
   'news-article',
 )
 
-export const newsPagesDirectory = path.join(
-  pageDirectory,
-  'news',
-  'news-page',
+export const cardDirectory = path.join(
+  newsDirectory,
+  'news-cards',
 )
 
 export const sidebarPath = path.join(
@@ -41,5 +45,5 @@ export const stateDirectory = path.join(
 
 export const statePath = path.join(
   stateDirectory,
-  'articles.json',
+  'state.json',
 )

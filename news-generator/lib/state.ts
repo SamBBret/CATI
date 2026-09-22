@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises'
+
 import {
   stateDirectory,
   statePath,
@@ -8,24 +9,38 @@ export interface ArticleState {
   slug: string
   rev: string
   publishedAt: string
-  position: number
 }
 
 export interface GeneratorState {
-  articles: Record<string, ArticleState>
+  articles: Record<
+    string,
+    ArticleState
+  >
   totalPages: number
 }
 
 export async function loadState(): Promise<GeneratorState> {
   try {
-    const contents = await fs.readFile(
-      statePath,
-      'utf8',
-    )
+    const contents =
+      await fs.readFile(
+        statePath,
+        'utf8',
+      )
 
-    const parsed = JSON.parse(contents)
+    const parsed =
+      JSON.parse(contents)
 
-    // Migrate the old state format if necessary.
+    /*
+     * Migrate the old state format:
+     *
+     * {
+     *   "article-id": {
+     *     "slug": "...",
+     *     "rev": "...",
+     *     "publishedAt": "..."
+     *   }
+     * }
+     */
     if (
       !parsed.articles &&
       typeof parsed === 'object'
@@ -37,8 +52,11 @@ export async function loadState(): Promise<GeneratorState> {
     }
 
     return {
-      articles: parsed.articles || {},
-      totalPages: parsed.totalPages || 0,
+      articles:
+        parsed.articles || {},
+
+      totalPages:
+        parsed.totalPages || 0,
     }
   } catch {
     return {

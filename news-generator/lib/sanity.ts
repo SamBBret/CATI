@@ -13,7 +13,7 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion: '2026-09-20',
-  useCdn: true,
+  useCdn: false,
 })
 
 export async function getPublishedArticles() {

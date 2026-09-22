@@ -9,8 +9,12 @@ import {
 } from './generators/article'
 
 import {
-  generateNewsPages,
-} from './generators/news'
+  generateNewsCard,
+} from './generators/news-card'
+
+import {
+  generateNewsIndex,
+} from './generators/news-index'
 
 import {
   generateSidebar,
@@ -57,11 +61,23 @@ async function main() {
 
       if (!slug) {
         throw new Error(
-          'Usage: npm run generate:article -- <slug> [--force]',
+          'Usage: npm run generate:article -- <slug> [force]',
         )
       }
 
-      const result =
+      const article =
+        articles.find(
+          (item) =>
+            item.slug === slug,
+        )
+
+      if (!article) {
+        throw new Error(
+          `Article not found: ${slug}`,
+        )
+      }
+
+      const articleResult =
         await generateArticle(
           slug,
           articles,
@@ -69,22 +85,23 @@ async function main() {
           force,
         )
 
-      if (
-        result.changed ||
-        force
-      ) {
-        await generateNewsPages(
-          articles,
-          result.affectedPages,
+      const cardResult =
+        await generateNewsCard(
+          article,
+          state,
+          force,
         )
 
-        if (
-          result.sidebarAffected
-        ) {
-          await generateSidebar(
-            articles,
-          )
-        }
+      if (
+        articleResult.changed ||
+        cardResult.changed
+      ) {
+        await generateNewsIndex(
+          articles,
+        )
+        await generateSidebar(
+          articles,
+        )
       }
 
       break
@@ -98,34 +115,19 @@ async function main() {
           force,
         )
 
-      if (force) {
-        await generateNewsPages(
+      if (
+        result.changed
+      ) {
+        await generateNewsIndex(
           articles,
         )
+      }
 
+      if (
+        result.sidebarAffected
+      ) {
         await generateSidebar(
           articles,
-        )
-      } else if (
-        result.changedArticles > 0
-      ) {
-        await generateNewsPages(
-          articles,
-          [
-            ...result.affectedPages,
-          ],
-        )
-
-        if (
-          result.sidebarAffected
-        ) {
-          await generateSidebar(
-            articles,
-          )
-        }
-      } else {
-        console.log(
-          'No article changes detected. News pages and sidebar are up to date.',
         )
       }
 
@@ -133,7 +135,13 @@ async function main() {
     }
 
     case 'news': {
-      await generateNewsPages(
+      await generateNewsCards(
+        articles,
+        state,
+        force,
+      )
+
+      await generateNewsIndex(
         articles,
       )
 
@@ -156,34 +164,21 @@ async function main() {
           force,
         )
 
-      if (force) {
-        await generateNewsPages(
+      if (
+        force ||
+        result.changed
+      ) {
+        await generateNewsIndex(
           articles,
         )
+      }
 
+      if (
+        force ||
+        result.sidebarAffected
+      ) {
         await generateSidebar(
           articles,
-        )
-      } else if (
-        result.changedArticles > 0
-      ) {
-        await generateNewsPages(
-          articles,
-          [
-            ...result.affectedPages,
-          ],
-        )
-
-        if (
-          result.sidebarAffected
-        ) {
-          await generateSidebar(
-            articles,
-          )
-        }
-      } else {
-        console.log(
-          'No article changes detected. Nothing to regenerate.',
         )
       }
 
@@ -196,16 +191,19 @@ async function main() {
       )
   }
 
-  /*
-   * Store the current number of news pages.
-   */
   state.totalPages =
     Math.max(
       1,
       Math.ceil(
-        articles.length / ARTICLES_PER_PAGE,
+        articles.length /
+          ARTICLES_PER_PAGE,
       ),
     )
+
+  updateState(
+    state,
+    articles,
+  )
 
   await saveState(
     state,
@@ -217,16 +215,13 @@ async function generateArticles(
   state: any,
   force: boolean,
 ) {
-  const affectedPages =
-    new Set<number>()
-
-  let changedArticles = 0
+  let changed = false
   let sidebarAffected = false
 
   for (
     const article of articles
   ) {
-    const result =
+    const articleResult =
       await generateArticle(
         article.slug,
         articles,
@@ -234,37 +229,84 @@ async function generateArticles(
         force,
       )
 
-    if (result.changed) {
-      changedArticles++
-    }
-
-    for (
-      const page
-      of result.affectedPages
-    ) {
-      if (
-        result.changed ||
-        force
-      ) {
-        affectedPages.add(
-          page,
-        )
-      }
-    }
+    const cardResult =
+      await generateNewsCard(
+        article,
+        state,
+        force,
+      )
 
     if (
-      result.changed &&
-      result.sidebarAffected
+      articleResult.changed ||
+      cardResult.changed
     ) {
-      sidebarAffected = true
+      changed = true
     }
   }
 
   return {
-    changedArticles,
-    affectedPages,
+    changed,
     sidebarAffected,
   }
+}
+
+async function generateNewsCards(
+  articles: any[],
+  state: any,
+  force: boolean,
+) {
+  for (
+    const article of articles
+  ) {
+    await generateNewsCard(
+      article,
+      state,
+      force,
+    )
+  }
+}
+
+function updateState(
+  state: any,
+  articles: any[],
+) {
+  const currentArticles: Record<
+    string,
+    {
+      slug: string
+      rev: string
+      publishedAt: string
+    }
+  > = {}
+
+  for (
+    const article of articles
+  ) {
+    currentArticles[
+      article._id
+    ] = {
+      slug:
+        article.slug,
+
+      rev:
+        article._rev,
+
+      publishedAt:
+        article.publishedAt,
+    }
+  }
+
+  state.articles =
+    currentArticles
+
+  state.totalPages =
+    Math.max(
+      1,
+      Math.ceil(
+        articles.length /
+          ARTICLES_PER_PAGE,
+      ),
+    )
 }
 
 main().catch(
@@ -273,3 +315,4 @@ main().catch(
     process.exit(1)
   },
 )
+

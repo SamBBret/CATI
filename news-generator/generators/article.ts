@@ -2,7 +2,6 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import {
-  articleUrl,
   escapeHtml,
   formatDate,
   imageUrl,
@@ -10,22 +9,15 @@ import {
 } from '../lib/utils'
 
 import {
-  newsDirectory,
+  articleDirectory,
 } from '../lib/paths'
 
 import {
   loadTemplate,
 } from '../lib/templates'
 
-import {
-  ARTICLES_PER_PAGE,
-  SIDEBAR_ARTICLES_COUNT,
-} from '../lib/config'
-
 export interface ArticleGenerationResult {
   changed: boolean
-  affectedPages: number[]
-  sidebarAffected: boolean
 }
 
 export async function generateArticle(
@@ -34,35 +26,34 @@ export async function generateArticle(
   state: any,
   force = false,
 ): Promise<ArticleGenerationResult> {
-  const articleIndex =
-    articles.findIndex(
-      (item) => item.slug === slug,
+  const article =
+    articles.find(
+      (item) =>
+        item.slug === slug,
     )
 
-  if (articleIndex === -1) {
+  if (!article) {
     throw new Error(
       `Article not found: ${slug}`,
     )
   }
 
-  const article =
-    articles[articleIndex]
-
-  const position =
-    articleIndex + 1
-
   const previous =
-    state.articles[article._id]
+    state.articles[
+      article._id
+    ]
 
   const articlePath =
     path.join(
-      newsDirectory,
+      articleDirectory,
       article.slug,
       'index.html',
     )
 
   const articleExists =
-    await fileExists(articlePath)
+    await fileExists(
+      articlePath,
+    )
 
   const changed =
     force ||
@@ -72,10 +63,12 @@ export async function generateArticle(
     !articleExists
 
   if (changed) {
-    await writeArticle(article)
+    await writeArticle(
+      article,
+    )
 
     console.log(
-      `Generated article: ${article.title}`,
+      `Generated article: ${article.title} `,
     )
   } else {
     console.log(
@@ -84,85 +77,17 @@ export async function generateArticle(
   }
 
   /*
-   * Determine which news listing pages contain
-   * the old and new positions.
+   * Update generator state.
+   *
+   * Position is deliberately NOT stored here.
+   * The current position is determined from the
+   * ordered Sanity query when news-index.json
+   * is generated.
    */
-  const affectedPages = new Set<number>()
-
-  const newPage =
-    getPageForPosition(position)
-
-  affectedPages.add(newPage)
-
-  if (previous?.position) {
-    const oldPage =
-      getPageForPosition(
-        previous.position,
-      )
-
-    affectedPages.add(oldPage)
-
-    /*
-     * If the article moved, all pages between
-     * the old and new positions can have shifted.
-     */
-    if (oldPage !== newPage) {
-      const firstPage =
-        Math.min(
-          oldPage,
-          newPage,
-        )
-
-      const lastPage =
-        Math.max(
-          oldPage,
-          newPage,
-        )
-
-      for (
-        let page = firstPage;
-        page <= lastPage;
-        page++
-      ) {
-        affectedPages.add(page)
-      }
-    }
-  }
-
-  /*
-   * Sidebar contains the latest 5 articles.
-   */
-  const sidebarAffected =
-    force ||
-    position <= SIDEBAR_ARTICLES_COUNT ||
-    previous?.position <= SIDEBAR_ARTICLES_COUNT
-
-  state.articles[article._id] = {
-    slug: article.slug,
-    rev: article._rev,
-    publishedAt:
-      article.publishedAt,
-    position,
-  }
 
   return {
     changed,
-    affectedPages: [
-      ...affectedPages,
-    ].sort(
-      (a, b) => a - b,
-    ),
-    sidebarAffected,
   }
-}
-
-function getPageForPosition(
-  position: number,
-) {
-  return Math.ceil(
-    position /
-      ARTICLES_PER_PAGE,
-  )
 }
 
 async function writeArticle(
@@ -257,7 +182,8 @@ async function writeArticle(
 
   const outputPath =
     path.join(
-      newsDirectory,
+      articleDirectory,
+      'news-article',
       article.slug,
       'index.html',
     )

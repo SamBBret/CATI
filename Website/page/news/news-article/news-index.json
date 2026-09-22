@@ -1,0 +1,63 @@
+{
+  "articlesPerPage": 6,
+  "totalArticles": 8,
+  "totalPages": 2,
+  "articles": [
+    {
+      "number": 1,
+      "slug": "visita-ao-cati",
+      "date": "2026-03-30T15:52:00.000Z",
+      "card": "/page/news/cards/visita-ao-cati.html",
+      "url": "/page/news/news-article/visita-ao-cati/"
+    },
+    {
+      "number": 2,
+      "slug": "ciencia-viva-na-escola",
+      "date": "2026-03-27T16:59:00.000Z",
+      "card": "/page/news/cards/ciencia-viva-na-escola.html",
+      "url": "/page/news/news-article/ciencia-viva-na-escola/"
+    },
+    {
+      "number": 3,
+      "slug": "iii-encontro-de-ciencia-e-espaco",
+      "date": "2026-02-27T17:11:00.000Z",
+      "card": "/page/news/cards/iii-encontro-de-ciencia-e-espaco.html",
+      "url": "/page/news/news-article/iii-encontro-de-ciencia-e-espaco/"
+    },
+    {
+      "number": 4,
+      "slug": "palestra-de-outono",
+      "date": "2025-10-16T16:21:00.000Z",
+      "card": "/page/news/cards/palestra-de-outono.html",
+      "url": "/page/news/news-article/palestra-de-outono/"
+    },
+    {
+      "number": 5,
+      "slug": "lancamento-do-limiar2",
+      "date": "2025-07-21T16:31:00.000Z",
+      "card": "/page/news/cards/lancamento-do-limiar2.html",
+      "url": "/page/news/news-article/lancamento-do-limiar2/"
+    },
+    {
+      "number": 6,
+      "slug": "lancamento-do-limiar1",
+      "date": "2025-05-30T16:45:00.000Z",
+      "card": "/page/news/cards/lancamento-do-limiar1.html",
+      "url": "/page/news/news-article/lancamento-do-limiar1/"
+    },
+    {
+      "number": 7,
+      "slug": "second-article",
+      "date": "2024-09-20T22:06:00.000Z",
+      "card": "/page/news/cards/second-article.html",
+      "url": "/page/news/news-article/second-article/"
+    },
+    {
+      "number": 8,
+      "slug": "first-article",
+      "date": "2024-09-19T20:51:00.000Z",
+      "card": "/page/news/cards/first-article.html",
+      "url": "/page/news/news-article/first-article/"
+    }
+  ]
+}
