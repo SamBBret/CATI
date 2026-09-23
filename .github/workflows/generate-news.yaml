@@ -3,6 +3,10 @@ name: Generate CATI News
 on:
   workflow_dispatch:
 
+  repository_dispatch:
+    types:
+      - sanity-update
+
 jobs:
   generate:
     runs-on: ubuntu-latest
