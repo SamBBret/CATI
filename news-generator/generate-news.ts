@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import {getPublishedArticles} from './lib/sanity'
 import {
   loadState,
@@ -6,19 +8,19 @@ import {
 
 import {
   generateArticle,
-} from './generators/article'
+} from './lib/generators/article'
 
 import {
   generateNewsCard,
-} from './generators/news-card'
+} from './lib/generators/news-card'
 
 import {
   generateNewsIndex,
-} from './generators/news-index'
+} from './lib/generators/news-index'
 
 import {
   generateSidebar,
-} from './generators/sidebar'
+} from './lib/generators/sidebar'
 
 import {
   ARTICLES_PER_PAGE,

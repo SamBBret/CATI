@@ -2,21 +2,21 @@ import fs from 'node:fs/promises'
 
 import {
   sidebarPath,
-} from '../lib/paths'
+} from '../paths'
 
 import {
   loadTemplate,
-} from '../lib/templates'
+} from '../templates'
 
 import {
   articleUrl,
   escapeHtml,
   formatDate,
-} from '../lib/utils'
+} from '../utils'
 
 import {
   SIDEBAR_ARTICLES_COUNT,
-} from '../lib/config'
+} from '../config'
 
 export async function generateSidebar(
   articles: any[],

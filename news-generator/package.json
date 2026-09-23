@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generate": "tsx --env-file=.env generate-news.ts all",
-    "generate:article": "tsx --env-file=.env generate-news.ts article",
-    "generate:articles": "tsx --env-file=.env generate-news.ts articles",
-    "generate:cards": "tsx --env-file=.env generate-news.ts cards",
-    "generate:sidebar": "tsx --env-file=.env generate-news.ts sidebar"
+    "generate": "tsx generate-news.ts all",
+    "generate:article": "tsx generate-news.ts article",
+    "generate:articles": "tsx generate-news.ts articles",
+    "generate:cards": "tsx generate-news.ts cards",
+    "generate:sidebar": "tsx generate-news.ts sidebar"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +17,8 @@
   "dependencies": {
     "@portabletext/to-html": "^6.0.0",
     "@sanity/client": "^8.6.2",
-    "@sanity/image-url": "^2.1.1"
+    "@sanity/image-url": "^2.1.1",
+    "dotenv": "^18.0.3"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",

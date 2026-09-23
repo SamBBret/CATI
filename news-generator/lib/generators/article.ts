@@ -6,15 +6,15 @@ import {
   formatDate,
   imageUrl,
   renderPortableText,
-} from '../lib/utils'
+} from '../utils'
 
 import {
   articleDirectory,
-} from '../lib/paths'
+} from '../paths'
 
 import {
   loadTemplate,
-} from '../lib/templates'
+} from '../templates'
 
 export interface ArticleGenerationResult {
   changed: boolean
