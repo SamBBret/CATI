@@ -85,23 +85,18 @@ async function main() {
           force,
         )
 
-      const cardResult =
-        await generateNewsCard(
-          article,
-          state,
-          force,
-        )
-
-      if (
-        articleResult.changed ||
-        cardResult.changed
-      ) {
-        await generateNewsIndex(
-          articles,
-        )
-        await generateSidebar(
-          articles,
-        )
+      if(articleResult.changed){
+        const cardResult =
+          await generateNewsCard(
+            article,
+            state,
+            force,
+          )
+        await generateNewsIndex(articles)
+        
+        if (cardResult.changed) {
+            await generateSidebar(articles)
+        }
       }
 
       break
@@ -115,35 +110,26 @@ async function main() {
           force,
         )
 
-      if (
-        result.changed
-      ) {
-        await generateNewsIndex(
-          articles,
-        )
-      }
-
-      if (
-        result.sidebarAffected
-      ) {
-        await generateSidebar(
-          articles,
-        )
+      if (result.cardChanged){          
+        await generateSidebar(articles)
+        await generateNewsIndex(articles)
       }
 
       break
     }
 
-    case 'news': {
+    case 'cards': {
+      const result = 
       await generateNewsCards(
         articles,
         state,
         force,
       )
 
-      await generateNewsIndex(
-        articles,
-      )
+      if (result.cardChanged){
+        await generateNewsIndex(articles)
+        await generateSidebar(articles)
+      }
 
       break
     }
@@ -164,19 +150,8 @@ async function main() {
           force,
         )
 
-      if (
-        force ||
-        result.changed
-      ) {
-        await generateNewsIndex(
-          articles,
-        )
-      }
-
-      if (
-        force ||
-        result.sidebarAffected
-      ) {
+      if (result.cardChanged) {
+        await generateNewsIndex(articles)
         await generateSidebar(
           articles,
         )
@@ -215,9 +190,7 @@ async function generateArticles(
   state: any,
   force: boolean,
 ) {
-  let changed = false
-  let sidebarAffected = false
-
+  let cardChanged = false
   for (
     const article of articles
   ) {
@@ -229,24 +202,23 @@ async function generateArticles(
         force,
       )
 
-    const cardResult =
-      await generateNewsCard(
-        article,
-        state,
-        force,
-      )
+    var cardResult
+    if(articleResult.changed){
+      cardResult =
+        await generateNewsCard(
+          article,
+          state,
+          force,
+        )
 
-    if (
-      articleResult.changed ||
-      cardResult.changed
-    ) {
-      changed = true
+      if (cardResult) {
+       cardChanged = true
+      }
     }
   }
 
   return {
-    changed,
-    sidebarAffected,
+    cardChanged
   }
 }
 
@@ -255,14 +227,23 @@ async function generateNewsCards(
   state: any,
   force: boolean,
 ) {
+  let cardChanged = false
+
   for (
     const article of articles
   ) {
-    await generateNewsCard(
-      article,
-      state,
-      force,
-    )
+    const result =
+      await generateNewsCard(
+        article,
+        state,
+        force,
+      )
+    if (result.changed){
+      cardChanged = true
+    }
+  }
+  return{ 
+    cardChanged 
   }
 }
 
@@ -279,22 +260,21 @@ function updateState(
     }
   > = {}
 
-  for (
-    const article of articles
-  ) {
-    currentArticles[
-      article._id
-    ] = {
-      slug:
-        article.slug,
+    articles.forEach((article, index) =>{
+      currentArticles[
+        article._id
+      ] = {
+        slug:
+          article.slug,
 
-      rev:
-        article._rev,
+        rev:
+          article._rev,
 
-      publishedAt:
-        article.publishedAt,
-    }
-  }
+        publishedAt:
+          article.publishedAt
+      }
+    });
+
 
   state.articles =
     currentArticles

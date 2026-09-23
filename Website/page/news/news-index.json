@@ -5,75 +5,43 @@
   "articles": [
     {
       "number": 1,
-      "id": "b769fa0a-805c-4aae-bd5f-67197419faa3",
-      "rev": "ngqA6mE9gKvtS1xUUY5Sze",
-      "slug": "visita-ao-cati",
       "date": "2026-03-30T15:52:00.000Z",
-      "card": "/page/news/news-cards/visita-ao-cati.html",
-      "url": "/page/news/news-article/visita-ao-cati/"
+      "card": "/page/news/news-cards/visita-ao-cati.html"
     },
     {
       "number": 2,
-      "id": "ac27be4b-8f50-4347-84c7-727ac93a8206",
-      "rev": "lYsQ05THAEcbLyA8IeB3iE",
-      "slug": "ciencia-viva-na-escola",
       "date": "2026-03-27T16:59:00.000Z",
-      "card": "/page/news/news-cards/ciencia-viva-na-escola.html",
-      "url": "/page/news/news-article/ciencia-viva-na-escola/"
+      "card": "/page/news/news-cards/ciencia-viva-na-escola.html"
     },
     {
       "number": 3,
-      "id": "67ae49f8-b983-41dc-ad84-7751fbdbd5da",
-      "rev": "ngqA6mE9gKvtS1xUUY5T5b",
-      "slug": "iii-encontro-de-ciencia-e-espaco",
       "date": "2026-02-27T17:11:00.000Z",
-      "card": "/page/news/news-cards/iii-encontro-de-ciencia-e-espaco.html",
-      "url": "/page/news/news-article/iii-encontro-de-ciencia-e-espaco/"
+      "card": "/page/news/news-cards/iii-encontro-de-ciencia-e-espaco.html"
     },
     {
       "number": 4,
-      "id": "af304d03-2b97-4507-bb80-51999666b500",
-      "rev": "ngqA6mE9gKvtS1xUUY1yZP",
-      "slug": "palestra-de-outono",
       "date": "2025-10-16T16:21:00.000Z",
-      "card": "/page/news/news-cards/palestra-de-outono.html",
-      "url": "/page/news/news-article/palestra-de-outono/"
+      "card": "/page/news/news-cards/palestra-de-outono.html"
     },
     {
       "number": 5,
-      "id": "5cc0a673-5d64-43f1-aab7-7e016ca7b105",
-      "rev": "ngqA6mE9gKvtS1xUUY5FFF",
-      "slug": "lancamento-do-limiar2",
       "date": "2025-07-21T16:31:00.000Z",
-      "card": "/page/news/news-cards/lancamento-do-limiar2.html",
-      "url": "/page/news/news-article/lancamento-do-limiar2/"
+      "card": "/page/news/news-cards/lancamento-do-limiar2.html"
     },
     {
       "number": 6,
-      "id": "8c59c80f-6a31-4adf-bb49-26ea2c80939d",
-      "rev": "Nlk7MEAvTbFr2I3Pf0q8hb",
-      "slug": "lancamento-do-limiar1",
       "date": "2025-05-30T16:45:00.000Z",
-      "card": "/page/news/news-cards/lancamento-do-limiar1.html",
-      "url": "/page/news/news-article/lancamento-do-limiar1/"
+      "card": "/page/news/news-cards/lancamento-do-limiar1.html"
     },
     {
       "number": 7,
-      "id": "d37bdeb2-a0c0-4cad-bf30-b6ae02f16e88",
-      "rev": "ngqA6mE9gKvtS1xUUXyieW",
-      "slug": "second-article",
       "date": "2024-09-20T22:06:00.000Z",
-      "card": "/page/news/news-cards/second-article.html",
-      "url": "/page/news/news-article/second-article/"
+      "card": "/page/news/news-cards/second-article.html"
     },
     {
       "number": 8,
-      "id": "75c02291-548f-4cb8-9701-b2e539ce638f",
-      "rev": "Nlk7MEAvTbFr2I3Pf0rKVH",
-      "slug": "first-article",
       "date": "2024-09-19T20:51:00.000Z",
-      "card": "/page/news/news-cards/first-article.html",
-      "url": "/page/news/news-article/first-article/"
+      "card": "/page/news/news-cards/first-article.html"
     }
   ]
 }

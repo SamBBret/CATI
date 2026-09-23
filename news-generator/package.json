@@ -7,7 +7,7 @@
     "generate": "tsx --env-file=.env generate-news.ts all",
     "generate:article": "tsx --env-file=.env generate-news.ts article",
     "generate:articles": "tsx --env-file=.env generate-news.ts articles",
-    "generate:news": "tsx --env-file=.env generate-news.ts news",
+    "generate:cards": "tsx --env-file=.env generate-news.ts cards",
     "generate:sidebar": "tsx --env-file=.env generate-news.ts sidebar"
   },
   "keywords": [],

@@ -37,25 +37,11 @@ export async function generateNewsIndex(
           number:
             index + 1,
 
-          id:
-            article._id,
-
-          rev:
-            article._rev,
-
-          slug:
-            article.slug,
-
           date:
             article.publishedAt,
 
           card:
             `/page/news/news-cards/${article.slug}.html`,
-
-          url:
-            articleUrl(
-              article.slug,
-            ),
         }),
       ),
   }
