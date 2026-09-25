@@ -8,19 +8,19 @@ import {
 
 import {
   generateArticle,
-} from './lib/generators/article'
+} from './generators/article'
 
 import {
   generateNewsCard,
-} from './lib/generators/news-card'
+} from './generators/news-card'
 
 import {
   generateNewsIndex,
-} from './lib/generators/news-index'
+} from './generators/news-index'
 
 import {
   generateSidebar,
-} from './lib/generators/sidebar'
+} from './generators/sidebar'
 
 import {
   ARTICLES_PER_PAGE,

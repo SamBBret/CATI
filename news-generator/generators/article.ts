@@ -6,15 +6,15 @@ import {
   formatDate,
   imageUrl,
   renderPortableText,
-} from '../utils'
+} from '../lib/utils'
 
 import {
   articleDirectory,
-} from '../paths'
+} from '../lib/paths'
 
 import {
   loadTemplate,
-} from '../templates'
+} from '../lib/templates'
 
 export interface ArticleGenerationResult {
   changed: boolean
@@ -183,7 +183,6 @@ async function writeArticle(
   const outputPath =
     path.join(
       articleDirectory,
-      'news-article',
       article.slug,
       'index.html',
     )
@@ -200,7 +199,7 @@ async function writeArticle(
   await fs.writeFile(
     outputPath,
     html,
-    'utf8',
+    'u tf8',
   )
 }
 

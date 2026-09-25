@@ -3,22 +3,22 @@ import path from 'node:path'
 
 import {
   cardDirectory,
-} from '../paths'
+} from '../lib/paths'
 
 import {
   loadTemplate,
-} from '../templates'
+} from '../lib/templates'
 
 import {
   articleUrl,
   escapeHtml,
   formatDate,
   imageUrl,
-} from '../utils'
+} from '../lib/utils'
 
 import {
   type GeneratorState,
-} from '../state'
+} from '../lib/state'
 
 export interface NewsCardResult {
   changed: boolean

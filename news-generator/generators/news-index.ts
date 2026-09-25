@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import {newsDirectory} from '../paths'
-import {articleUrl} from '../utils'
-import {ARTICLES_PER_PAGE} from '../config'
+import {newsDirectory} from '../lib/paths'
+import {articleUrl} from '../lib/utils'
+import {ARTICLES_PER_PAGE} from '../lib/config'
 
 export async function generateNewsIndex(
   articles: any[],
