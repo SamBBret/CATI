@@ -199,7 +199,7 @@ async function writeArticle(
   await fs.writeFile(
     outputPath,
     html,
-    'u tf8',
+    'utf8',
   )
 }
 
